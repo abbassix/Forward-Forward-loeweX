@@ -34,14 +34,16 @@ def train(opt, model, optimizer):
         utils.print_results("train", time.time() - start_time, train_results, epoch)
         start_time = time.time()
 
-        # Validate.
+        # Validate using both methods.
         if epoch % opt.training.val_idx == 0 and opt.training.val_idx != -1:
             validate_or_test(opt, model, "val", epoch=epoch)
+            validate_or_test_ff_native(opt, model, "val", epoch=epoch)
 
     return model
 
 
 def validate_or_test(opt, model, partition, epoch=None):
+    """Standard downstream classifier validation."""
     test_time = time.time()
     test_results = defaultdict(float)
 
@@ -49,7 +51,7 @@ def validate_or_test(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(partition)
+    print(f"{partition} (downstream)")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
@@ -61,7 +63,30 @@ def validate_or_test(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(partition, time.time() - test_time, test_results, epoch=epoch)
+    utils.print_results(f"{partition}_downstream", time.time() - test_time, test_results, epoch=epoch)
+    model.train()
+
+
+def validate_or_test_ff_native(opt, model, partition, epoch=None):
+    """FF-native validation using goodness maximization."""
+    test_time = time.time()
+    test_results = defaultdict(float)
+
+    data_loader = utils.get_data(opt, partition)
+    num_steps_per_epoch = len(data_loader)
+
+    model.eval()
+    print(f"{partition} (FF-native)")
+    with torch.no_grad():
+        for inputs, labels in data_loader:
+            inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
+
+            scalar_outputs = model.forward_ff_native_validation(inputs, labels)
+            test_results = utils.log_results(
+                test_results, scalar_outputs, num_steps_per_epoch
+            )
+
+    utils.print_results(f"{partition}_ff_native", time.time() - test_time, test_results, epoch=epoch)
     model.train()
 
 
@@ -70,10 +95,14 @@ def my_main(opt: DictConfig) -> None:
     opt = utils.parse_args(opt)
     model, optimizer = utils.get_model_and_optimizer(opt)
     model = train(opt, model, optimizer)
+    
+    # Final validation using both methods
     validate_or_test(opt, model, "val")
+    validate_or_test_ff_native(opt, model, "val")
 
     if opt.training.final_test:
         validate_or_test(opt, model, "test")
+        validate_or_test_ff_native(opt, model, "test")
 
 
 if __name__ == "__main__":

@@ -83,10 +83,14 @@ class FF_model(torch.nn.Module):
             ).item()
         return ff_loss, ff_accuracy
 
+    def _calc_goodness(self, z):
+        """Calculate goodness (sum of squared activations) for FF-native validation."""
+        return torch.sum(z ** 2, dim=-1)
+
     def forward(self, inputs, labels):
         scalar_outputs = {
             "Loss": torch.zeros(1, device=self.opt.device),
-            "Peer Normalization": torch.zeros(1, device=self.opt.device),
+            "PN": torch.zeros(1, device=self.opt.device),  # Peer Normalization
         }
 
         # Concatenate positive and negative samples and create corresponding labels.
@@ -103,12 +107,12 @@ class FF_model(torch.nn.Module):
 
             if self.opt.model.peer_normalization > 0:
                 peer_loss = self._calc_peer_normalization_loss(idx, z)
-                scalar_outputs["Peer Normalization"] += peer_loss
+                scalar_outputs["PN"] += peer_loss
                 scalar_outputs["Loss"] += self.opt.model.peer_normalization * peer_loss
 
             ff_loss, ff_accuracy = self._calc_ff_loss(z, posneg_labels)
-            scalar_outputs[f"loss_layer_{idx}"] = ff_loss
-            scalar_outputs[f"ff_accuracy_layer_{idx}"] = ff_accuracy
+            scalar_outputs[f"L{idx}_loss"] = ff_loss
+            scalar_outputs[f"L{idx}_acc"] = ff_accuracy
             scalar_outputs["Loss"] += ff_loss
             z = z.detach()
 
@@ -118,6 +122,95 @@ class FF_model(torch.nn.Module):
             inputs, labels, scalar_outputs=scalar_outputs
         )
 
+        return scalar_outputs
+
+    def forward_ff_native_validation(self, inputs, labels):
+        """
+        FF-native validation: Try all possible labels and choose the one with highest goodness.
+        Calculates FF accuracy for all 7 combinations of layers: l0, l1, l2, l0+l1, l0+l2, l1+l2, l0+l1+l2
+        """
+        scalar_outputs = {
+            "Loss": torch.zeros(1, device=self.opt.device),
+        }
+
+        batch_size = inputs["neutral_sample"].shape[0]
+        num_classes = 10
+        
+        # Get the neutral sample (without any label information)
+        neutral_sample = inputs["neutral_sample"]
+        
+        # Store goodness for each layer and each possible label
+        all_goodness_l0 = []  # Layer 0 goodness
+        all_goodness_l1 = []  # Layer 1 goodness
+        all_goodness_l2 = []  # Layer 2 goodness
+        
+        for class_label in range(num_classes):
+            # Create one-hot label for this class
+            one_hot_label = torch.nn.functional.one_hot(
+                torch.tensor(class_label), num_classes=num_classes
+            ).float().to(self.opt.device)
+            
+            # Replicate for batch size
+            batch_one_hot = one_hot_label.unsqueeze(0).repeat(batch_size, 1)
+            
+            # Create labeled sample by setting the first pixels to the one-hot label
+            labeled_sample = neutral_sample.clone()
+            # Set the first row of pixels (first 10 pixels) to the one-hot label
+            if neutral_sample.dim() == 4:  # With channel dimension
+                labeled_sample[:, :, 0, :num_classes] = batch_one_hot.unsqueeze(1)
+            else:  # Without channel dimension
+                labeled_sample[:, 0, :num_classes] = batch_one_hot
+            
+            # Forward pass through the network
+            z = labeled_sample.reshape(batch_size, -1)
+            z = self._layer_norm(z)
+            
+            # Track goodness for each individual layer
+            layer_goodness = []
+            
+            with torch.no_grad():
+                for idx, layer in enumerate(self.model):
+                    z = layer(z)
+                    z = self.act_fn.apply(z)
+                    
+                    # Calculate and store goodness for this layer
+                    goodness = self._calc_goodness(z)
+                    layer_goodness.append(goodness)
+                    
+                    z = self._layer_norm(z)
+            
+            # Store goodness for each layer
+            all_goodness_l0.append(layer_goodness[0])
+            all_goodness_l1.append(layer_goodness[1])
+            all_goodness_l2.append(layer_goodness[2])
+        
+        # Stack all goodness values: [num_classes, batch_size]
+        all_goodness_l0 = torch.stack(all_goodness_l0, dim=0)
+        all_goodness_l1 = torch.stack(all_goodness_l1, dim=0)
+        all_goodness_l2 = torch.stack(all_goodness_l2, dim=0)
+        
+        # Calculate combined goodness for all 7 combinations
+        goodness_combinations = {
+            'l0': all_goodness_l0,
+            'l1': all_goodness_l1,
+            'l2': all_goodness_l2,
+            'l0_l1': all_goodness_l0 + all_goodness_l1,
+            'l0_l2': all_goodness_l0 + all_goodness_l2,
+            'l1_l2': all_goodness_l1 + all_goodness_l2,
+            'l0_l1_l2': all_goodness_l0 + all_goodness_l1 + all_goodness_l2
+        }
+        
+        # Calculate accuracy for each combination
+        true_labels = labels["class_labels"]
+        
+        for combo_name, combo_goodness in goodness_combinations.items():
+            predicted_classes = torch.argmax(combo_goodness, dim=0)
+            accuracy = (predicted_classes == true_labels).float().mean().item()
+            scalar_outputs[f"ff_accuracy_{combo_name}"] = accuracy
+        
+        # Keep the original total accuracy for backward compatibility
+        scalar_outputs["ff_native_accuracy"] = scalar_outputs["ff_accuracy_l0_l1_l2"]
+        
         return scalar_outputs
 
     def forward_downstream_classification_model(
@@ -153,8 +246,8 @@ class FF_model(torch.nn.Module):
         )
 
         scalar_outputs["Loss"] += classification_loss
-        scalar_outputs["classification_loss"] = classification_loss
-        scalar_outputs["classification_accuracy"] = classification_accuracy
+        scalar_outputs["CLF_loss"] = classification_loss
+        scalar_outputs["CLF_acc"] = classification_accuracy
         return scalar_outputs
 
 

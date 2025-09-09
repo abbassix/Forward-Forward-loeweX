@@ -147,17 +147,16 @@ def get_accuracy(opt, output, target):
 
 
 def print_results(partition, iteration_time, scalar_outputs, epoch=None):
+    time_str = f"{iteration_time:.3f}s"
+    
     if epoch is not None:
-        print(f"Epoch {epoch} \t", end="")
-
-    print(
-        f"{partition} \t \t"
-        f"Time: {timedelta(seconds=iteration_time)} \t",
-        end="",
-    )
+        print(f"Epoch {epoch:<4}", end="")
+    
+    print(f"{partition:<6} Time: {time_str:<10}", end="")
+    
     if scalar_outputs is not None:
         for key, value in scalar_outputs.items():
-            print(f"{key}: {value:.4f} \t", end="")
+            print(f"{key}: {value:7.4f}\t", end="")
     print()
 
 
