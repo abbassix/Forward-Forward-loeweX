@@ -31,7 +31,9 @@ def train(opt, model, optimizer):
                 train_results, scalar_outputs, num_steps_per_epoch
             )
 
-        utils.print_results("train", time.time() - start_time, train_results, epoch)
+        print(f"Epoch {epoch}:")
+        print(f"\ttraining", end="")
+        utils.print_results(time.time() - start_time, train_results)
         start_time = time.time()
 
         # Validate using both methods.
@@ -51,7 +53,7 @@ def validate_or_test(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"{partition} (downstream)")
+    print(f"\t{partition} (with classifier)", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
@@ -63,7 +65,7 @@ def validate_or_test(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(f"\t", time.time() - test_time, test_results, epoch=epoch)
+    utils.print_results(time.time() - test_time, test_results)
     model.train()
 
 
@@ -76,7 +78,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"{partition} (FF-native)")
+    print(f"\t{partition} (FF-native)", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
@@ -86,7 +88,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(f"\t", time.time() - test_time, test_results, epoch=epoch)
+    utils.print_results(time.time() - test_time, test_results)
     model.train()
 
 

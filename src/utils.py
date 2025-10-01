@@ -146,13 +146,10 @@ def get_accuracy(opt, output, target):
         return (prediction == target).sum() / opt.input.batch_size
 
 
-def print_results(partition, iteration_time, scalar_outputs, epoch=None):
+def print_results(iteration_time, scalar_outputs):
     time_str = f"{iteration_time:.3f}s"
     
-    if epoch is not None:
-        print(f"Epoch {epoch:<4}", end="")
-    
-    print(f"{partition:<6} Time: {time_str:<10}", end="")
+    print(f"\tTime: {time_str:<10}", end="")
     
     if scalar_outputs is not None:
         for key, value in scalar_outputs.items():
