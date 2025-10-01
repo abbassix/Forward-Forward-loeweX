@@ -63,7 +63,7 @@ def validate_or_test(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(f"{partition}_downstream", time.time() - test_time, test_results, epoch=epoch)
+    utils.print_results(f"\t", time.time() - test_time, test_results, epoch=epoch)
     model.train()
 
 
@@ -86,7 +86,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(f"{partition}_ff_native", time.time() - test_time, test_results, epoch=epoch)
+    utils.print_results(f"\t", time.time() - test_time, test_results, epoch=epoch)
     model.train()
 
 
