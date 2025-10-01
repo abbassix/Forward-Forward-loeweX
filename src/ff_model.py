@@ -113,8 +113,8 @@ class FF_model(torch.nn.Module):
                 scalar_outputs["Loss"] += self.opt.model.peer_normalization * peer_loss
 
             ff_loss, ff_accuracy = self._calc_ff_loss(z, posneg_labels)
-            scalar_outputs[f"loss_layer_{idx}"] = ff_loss
-            scalar_outputs[f"ff_accuracy_layer_{idx}"] = ff_accuracy
+            scalar_outputs[f"loss_l{idx}"] = ff_loss
+            scalar_outputs[f"ff_accuracy_l{idx}"] = ff_accuracy
             scalar_outputs["Loss"] += ff_loss
             z = z.detach()
 
@@ -191,10 +191,10 @@ class FF_model(torch.nn.Module):
         for combo_key, goodness in combined_goodness.items():
             predicted_labels = torch.argmax(goodness, dim=0)
             accuracy = (predicted_labels == true_labels).float().mean().item()
-            scalar_outputs[f'ff_accuracy_{combo_key}'] = accuracy
+            scalar_outputs[f'accuracy_{combo_key}'] = accuracy
         
         # Use the accuracy from the combination of all layers as the main metric
-        scalar_outputs["ff_accuracy"] = scalar_outputs['ff_accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
+        scalar_outputs["accuracy"] = scalar_outputs['accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
         
         return scalar_outputs
 
