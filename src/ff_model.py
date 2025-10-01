@@ -46,7 +46,6 @@ class FF_model(torch.nn.Module):
 
     def _init_weights(self):
         for i, m in enumerate(self.model.modules()):
-            print(i, m)
             if isinstance(m, nn.Linear):
                 torch.nn.init.normal_(
                     m.weight, mean=0, std=1 / math.sqrt(m.weight.shape[0])
@@ -55,7 +54,7 @@ class FF_model(torch.nn.Module):
             if i == 1:
                 # First layer: Set weights for input pixels corresponding to one-hot labels to zero.
                 with torch.no_grad():
-                    m.weight[:, :10] = 0.1
+                    m.weight[:, :10] = 0.0
 
         for m in self.linear_classifier.modules():
             if isinstance(m, nn.Linear):
