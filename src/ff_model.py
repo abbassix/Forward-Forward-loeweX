@@ -53,8 +53,11 @@ class FF_model(torch.nn.Module):
                 torch.nn.init.zeros_(m.bias)
             if i == 1:
                 # First layer: Set weights for input pixels corresponding to one-hot labels to zero.
-                with torch.no_grad():
-                    m.weight[:, :10] = 0.0
+                # with torch.no_grad():
+                #     m.weight[:, :10] = 0.0
+                torch.nn.init.normal_(
+                    m.weight[:, :10], mean=0, std=1 / math.sqrt(m.weight.shape[0])
+                )
 
         for m in self.linear_classifier.modules():
             if isinstance(m, nn.Linear):
