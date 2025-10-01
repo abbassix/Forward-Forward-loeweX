@@ -187,8 +187,12 @@ def log_results(result_dict, scalar_outputs, num_steps):
         elif isinstance(value, dict):
             for subkey, subvalue in value.items():
                 if isinstance(subvalue, float):
+                    if subkey not in result_dict[key]:
+                        result_dict[key][subkey] = 0.0
                     result_dict[key][subkey] += subvalue / num_steps
                 elif isinstance(subvalue, torch.Tensor):
+                    if subkey not in result_dict[key]:
+                        result_dict[key][subkey] = 0.0
                     result_dict[key][subkey] += subvalue.item() / num_steps
                 else:
                     raise ValueError(f"Unsupported type in nested dict: {type(subvalue)}")
