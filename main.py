@@ -83,6 +83,9 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
     """FF-native validation using goodness maximization."""
     test_time = time.time()
     test_results = defaultdict(float)
+    test_results["Mode"] = "FF-native"
+    test_results["Accuracies"] = defaultdict(float)
+    
 
     data_loader = utils.get_data(opt, partition)
     num_steps_per_epoch = len(data_loader)
