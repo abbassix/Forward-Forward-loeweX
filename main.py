@@ -14,7 +14,7 @@ def train(opt, model, optimizer):
     num_steps_per_epoch = len(train_loader)
 
     for epoch in range(opt.training.epochs):
-        train_results = {}
+        train_results = defaultdict(float)
         optimizer = utils.update_learning_rate(optimizer, opt, epoch)
 
         for inputs, labels in train_loader:
