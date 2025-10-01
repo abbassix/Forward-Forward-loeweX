@@ -16,6 +16,14 @@ def train(opt, model, optimizer):
     for epoch in range(opt.training.epochs):
         # Create a dict of floats or dicts of floats using defaultdict
         train_results = defaultdict(lambda: defaultdict(float))
+        train_results["Mode"] = "Train"
+        train_results["Loss"] = 0.0
+        train_results["Peer Normalization Loss"] = 0.0
+        train_results["Classification Loss"] = 0.0
+        # train_results["Binary Losses"] = defaultdict(float)
+        # train_results["Binary Accuracies"] = defaultdict(float)
+        train_results["Accuracy"] = 0.0
+        # train_results["Accuracies"] = defaultdict(float)
         optimizer = utils.update_learning_rate(optimizer, opt, epoch)
 
         for inputs, labels in train_loader:
