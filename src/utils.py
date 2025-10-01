@@ -171,7 +171,7 @@ def print_results(iteration_time, scalar_outputs, partition):
             print(f"\tClassification loss: {scalar_outputs['Loss']:7.4f},")
         elif scalar_outputs.get("Mode") == "FF-native":
             print(f"\t\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
-            print(f"\tFF-native accuracies: ", end="")
+            print(f"\tAccuracies: ", end="")
             for combo, acc in scalar_outputs["Accuracies"].items():
                 print(f"{combo}: {acc:7.4f}, ", end="")
             

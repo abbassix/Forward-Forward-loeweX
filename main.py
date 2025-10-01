@@ -20,10 +20,7 @@ def train(opt, model, optimizer):
         train_results["Loss"] = 0.0
         train_results["Peer Normalization Loss"] = 0.0
         train_results["Classification Loss"] = 0.0
-        # train_results["Binary Losses"] = defaultdict(float)
-        # train_results["Binary Accuracies"] = defaultdict(float)
         train_results["Accuracy"] = 0.0
-        # train_results["Accuracies"] = defaultdict(float)
         optimizer = utils.update_learning_rate(optimizer, opt, epoch)
 
         for inputs, labels in train_loader:
@@ -40,7 +37,7 @@ def train(opt, model, optimizer):
                 train_results, scalar_outputs, num_steps_per_epoch
             )
 
-        print(f"Epoch {epoch}:")
+        print(f"\nEpoch {epoch}:")
         print(f"\ttraining\t", end="")
         utils.print_results(time.time() - start_time, train_results, "train")
         start_time = time.time()
@@ -91,7 +88,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"\t{partition} (FF-native)", end="")
+    print(f"\t{partition} (FF-native)\t", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
