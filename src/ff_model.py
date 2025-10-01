@@ -206,7 +206,7 @@ class FF_model(torch.nn.Module):
     ):
         if scalar_outputs is None:
             scalar_outputs = {
-                "Mode": "Classifier head"
+                "Mode": "Classifier head",
                 "Loss": torch.zeros(1, device=self.opt.device),
             }
 
