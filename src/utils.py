@@ -189,6 +189,6 @@ def log_results(result_dict, scalar_outputs, num_steps):
         #         if subkey not in result_dict[key]:
         #             result_dict[key][subkey] = 0.0
         #         result_dict[key][subkey] += subvalue / num_steps
-        elif isinstance(value, torch.Tensor):
-            result_dict[key] += value.item() / num_steps
+        # elif isinstance(value, torch.Tensor):
+        #     result_dict[key] += value.item() / num_steps
     return result_dict
