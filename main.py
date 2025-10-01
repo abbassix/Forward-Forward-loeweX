@@ -53,7 +53,7 @@ def validate_or_test(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"\t{partition} (with classifier)", end="")
+    print(f"\t{partition} (classifier)", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
