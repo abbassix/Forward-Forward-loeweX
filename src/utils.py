@@ -182,13 +182,13 @@ def log_results(result_dict, scalar_outputs, num_steps):
     for key, value in scalar_outputs.items():
         if isinstance(value, float):
             result_dict[key] += value / num_steps
-        elif isinstance(value, dict):
-            if key not in result_dict:
-                result_dict[key] = {}
-            for subkey, subvalue in value.items():
-                if subkey not in result_dict[key]:
-                    result_dict[key][subkey] = 0.0
-                result_dict[key][subkey] += subvalue / num_steps
-        else:
+        # elif isinstance(value, dict):
+        #     if key not in result_dict:
+        #         result_dict[key] = {}
+        #     for subkey, subvalue in value.items():
+        #         if subkey not in result_dict[key]:
+        #             result_dict[key][subkey] = 0.0
+        #         result_dict[key][subkey] += subvalue / num_steps
+        elif isinstance(value, torch.Tensor):
             result_dict[key] += value.item() / num_steps
     return result_dict
