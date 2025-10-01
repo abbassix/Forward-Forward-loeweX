@@ -172,8 +172,6 @@ def print_results(iteration_time, scalar_outputs, partition):
             print(f"\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
             print(f"\tAccuracies: ", end="")
             print(", ".join(f"{combo}: {acc:7.4f}" for combo, acc in scalar_outputs["Accuracies"].items()))
-            # for combo, acc in scalar_outputs["Accuracies"].items():
-            #     print(f"{combo}: {acc:7.4f}, ", end="")
 
 
 def log_results(result_dict, scalar_outputs, num_steps):
