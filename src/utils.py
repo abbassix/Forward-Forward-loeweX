@@ -180,6 +180,7 @@ def print_results(iteration_time, scalar_outputs, partition):
 
 def log_results(result_dict, scalar_outputs, num_steps):
     for key, value in scalar_outputs.items():
+        print(key, value, type(value))
         if isinstance(value, float):
             result_dict[key] += value / num_steps
         elif isinstance(value, str):
