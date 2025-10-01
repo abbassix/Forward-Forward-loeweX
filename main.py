@@ -37,7 +37,7 @@ def train(opt, model, optimizer):
                 train_results, scalar_outputs, num_steps_per_epoch
             )
 
-        print(f"\nEpoch {epoch}:")
+        print(f"\n\nEpoch {epoch}:")
         print(f"\ttraining\t", end="")
         utils.print_results(time.time() - start_time, train_results, "train")
         start_time = time.time()

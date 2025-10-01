@@ -168,7 +168,7 @@ def print_results(iteration_time, scalar_outputs, partition):
     else:
         if scalar_outputs.get("Mode") == "Classifier head":
             print(f"\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
-            print(f"\tClassification loss: {scalar_outputs['Loss']:7.4f},")
+            print(f"\tClassification loss: {scalar_outputs['Loss']:7.4f}")
         elif scalar_outputs.get("Mode") == "FF-native":
             print(f"\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
             print(f"\tAccuracies: ", end="")
