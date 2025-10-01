@@ -197,7 +197,7 @@ class FF_model(torch.nn.Module):
             scalar_outputs["Accuracies"][f'{combo_key}'] = accuracy
         
         # Use the accuracy from the combination of all layers as the main metric
-        scalar_outputs["Accuracy"] = scalar_outputs['accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
+        scalar_outputs["Accuracy"] = scalar_outputs["Accuracies"][f'l{"_l".join(map(str, layer_indices))}']
         
         return scalar_outputs
 
