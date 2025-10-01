@@ -33,6 +33,7 @@ def train(opt, model, optimizer):
 
         print(f"Epoch {epoch}:")
         print(f"\ttraining\t", end="")
+        print(train_results)
         utils.print_results(time.time() - start_time, train_results, "train")
         start_time = time.time()
 
