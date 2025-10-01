@@ -114,7 +114,7 @@ class FF_model(torch.nn.Module):
 
             ff_loss, ff_accuracy = self._calc_ff_loss(z, posneg_labels)
             scalar_outputs[f"loss_l{idx}"] = ff_loss
-            scalar_outputs[f"ff_accuracy_l{idx}"] = ff_accuracy
+            scalar_outputs[f"FF_binary_accuracy_l{idx}"] = ff_accuracy
             scalar_outputs["Loss"] += ff_loss
             z = z.detach()
 
@@ -192,7 +192,7 @@ class FF_model(torch.nn.Module):
             scalar_outputs[f'accuracy_{combo_key}'] = accuracy
         
         # Use the accuracy from the combination of all layers as the main metric
-        scalar_outputs["accuracy"] = scalar_outputs['accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
+        scalar_outputs["Accuracy"] = scalar_outputs['accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
         
         return scalar_outputs
 
@@ -229,8 +229,8 @@ class FF_model(torch.nn.Module):
         )
 
         scalar_outputs["Loss"] += classification_loss
-        scalar_outputs["classification_loss"] = classification_loss
-        scalar_outputs["classification_accuracy"] = classification_accuracy
+        # scalar_outputs["classification_loss"] = classification_loss
+        scalar_outputs["Accuracy"] = classification_accuracy
         return scalar_outputs
 
 
