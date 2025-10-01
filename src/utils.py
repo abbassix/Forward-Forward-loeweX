@@ -157,8 +157,7 @@ def print_results(iteration_time, scalar_outputs, partition):
     if partition == "train":
         print(f"\tPeer Normalization Loss: {scalar_outputs['Peer Normalization Loss']:7.4f}", end="")
         print(f"\tBinary losses: ", end="")
-        for layer, loss in scalar_outputs["Binary Losses"].items():
-            print(f"{layer}: {loss:7.4f}, ", end="")
+        print(", ".join(f"{layer}: {loss:7.4f}" for layer, loss in scalar_outputs["Binary Losses"].items()))
         print(f"\tBinary accuracies: ", end="")
         for layer, acc in scalar_outputs["Binary Accuracies"].items():
             print(f"{layer}: {acc:7.4f}, ", end="")
@@ -172,8 +171,9 @@ def print_results(iteration_time, scalar_outputs, partition):
         elif scalar_outputs.get("Mode") == "FF-native":
             print(f"\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
             print(f"\tAccuracies: ", end="")
-            for combo, acc in scalar_outputs["Accuracies"].items():
-                print(f"{combo}: {acc:7.4f}, ", end="")
+            print(", ".join(f"{combo}: {acc:7.4f}" for combo, acc in scalar_outputs["Accuracies"].items()))
+            # for combo, acc in scalar_outputs["Accuracies"].items():
+            #     print(f"{combo}: {acc:7.4f}, ", end="")
 
 
 def log_results(result_dict, scalar_outputs, num_steps):
