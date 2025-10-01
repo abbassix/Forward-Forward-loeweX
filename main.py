@@ -32,7 +32,7 @@ def train(opt, model, optimizer):
             )
 
         print(f"Epoch {epoch}:")
-        print(f"\ttraining", end="")
+        print(f"\ttraining\t", end="")
         utils.print_results(time.time() - start_time, train_results)
         start_time = time.time()
 
@@ -78,7 +78,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"\t{partition} (FF-native)", end="")
+    print(f"\t{partition} (FF-native)\t", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
