@@ -145,18 +145,25 @@ class FF_model(torch.nn.Module):
         goodnesses = defaultdict(list)
         
         for class_label in range(num_classes):
-            # Create one-hot label for this class
+            # Create one-hot label for this class; shape: [num_classes]
             one_hot_label = torch.nn.functional.one_hot(
                 torch.tensor(class_label), num_classes=num_classes
             ).float().to(self.opt.device)
             
-            # Replicate for batch size
+            # Replicate for batch size; shape: [batch_size, num_classes]
             batch_one_hot = one_hot_label.unsqueeze(0).repeat(batch_size, 1)
             
             # Create labeled sample by setting the first pixels to the one-hot label
-            labeled_sample = neutral_sample.clone()
+            labeled_sample = neutral_sample.clone() # Shape: [batch_size, 28, 28]
             # Set the first row of pixels (first 10 pixels) to the one-hot label
-            labeled_sample[:, 0, :num_classes] = batch_one_hot
+            if neutral_sample.dim() == 4:  # With channel dimension
+                print("With channel dimension")
+                print(neutral_sample.shape)
+                labeled_sample[:, :, 0, :num_classes] = batch_one_hot.unsqueeze(1)
+            else:  # Without channel dimension
+                print("Without channel dimension")
+                print(neutral_sample.shape)
+                labeled_sample[:, 0, :num_classes] = batch_one_hot
             
             # Forward pass through the network
             z = labeled_sample.reshape(batch_size, -1)
