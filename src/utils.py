@@ -179,23 +179,15 @@ def print_results(iteration_time, scalar_outputs, partition):
 
 
 def log_results(result_dict, scalar_outputs, num_steps):
-    print("see types of scalar_outputs:")
     for key, value in scalar_outputs.items():
         print(key, value, type(value))
-        # if isinstance(value, float):
-        #     result_dict[key] += value / num_steps
-        # elif isinstance(value, str):
-        #     continue
-        # else:
-        #     result_dict[key] += value.item() / num_steps
-        # # elif isinstance(value, dict):
-        # #     if key not in result_dict:
-        # #         result_dict[key] = {}
-        # #     for subkey, subvalue in value.items():
-        # #         if subkey not in result_dict[key]:
-        # #             result_dict[key][subkey] = 0.0
-        # #         result_dict[key][subkey] += subvalue / num_steps
-        # # elif isinstance(value, torch.Tensor):
-        # #     result_dict[key] += value.item() / num_steps
-    breakpoint()
+        if isinstance(value, float):
+            result_dict[key] += value / num_steps
+        elif isinstance(value, str):
+            continue
+        elif isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                result_dict[key][subkey] += subvalue.item() / num_steps
+        elif isinstance(value, torch.Tensor):
+            result_dict[key] += value.item() / num_steps
     return result_dict
