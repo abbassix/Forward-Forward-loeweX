@@ -57,6 +57,7 @@ def validate_or_test(opt, model, partition, epoch=None):
     """Standard downstream classifier validation."""
     test_time = time.time()
     test_results = defaultdict(float)
+    test_results["Mode"] = "Classifier head"
 
     data_loader = utils.get_data(opt, partition)
     num_steps_per_epoch = len(data_loader)
