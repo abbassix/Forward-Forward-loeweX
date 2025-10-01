@@ -33,7 +33,7 @@ def train(opt, model, optimizer):
 
         print(f"Epoch {epoch}:")
         print(f"\ttraining\t", end="")
-        utils.print_results(time.time() - start_time, train_results)
+        utils.print_results(time.time() - start_time, train_results, "train")
         start_time = time.time()
 
         # Validate using both methods.
@@ -65,7 +65,7 @@ def validate_or_test(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(time.time() - test_time, test_results)
+    utils.print_results(time.time() - test_time, test_results, partition)
     model.train()
 
 
@@ -88,7 +88,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
                 test_results, scalar_outputs, num_steps_per_epoch
             )
 
-    utils.print_results(time.time() - test_time, test_results)
+    utils.print_results(time.time() - test_time, test_results, partition)
     model.train()
 
 

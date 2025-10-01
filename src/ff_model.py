@@ -92,7 +92,9 @@ class FF_model(torch.nn.Module):
     def forward(self, inputs, labels):
         scalar_outputs = {
             "Loss": torch.zeros(1, device=self.opt.device),
-            "Peer Normalization": torch.zeros(1, device=self.opt.device),  # Peer Normalization
+            "Peer Normalization Loss": torch.zeros(1, device=self.opt.device),  # Peer Normalization
+            "Binary Losses": {},
+            "Binary Accuracies": {},
         }
 
         # Concatenate positive and negative samples and create corresponding labels.
@@ -109,12 +111,12 @@ class FF_model(torch.nn.Module):
 
             if self.opt.model.peer_normalization > 0:
                 peer_loss = self._calc_peer_normalization_loss(idx, z)
-                scalar_outputs["Peer Normalization"] += peer_loss
+                scalar_outputs["Peer Normalization Loss"] += peer_loss
                 scalar_outputs["Loss"] += self.opt.model.peer_normalization * peer_loss
 
             ff_loss, ff_accuracy = self._calc_ff_loss(z, posneg_labels)
-            scalar_outputs[f"loss_l{idx}"] = ff_loss
-            scalar_outputs[f"FF_binary_accuracy_l{idx}"] = ff_accuracy
+            scalar_outputs["Binary Losses"][f"Layer {idx}"] = ff_loss
+            scalar_outputs["Binary Accuracies"][f"Layer {idx}"] = ff_accuracy
             scalar_outputs["Loss"] += ff_loss
             z = z.detach()
 
@@ -131,7 +133,10 @@ class FF_model(torch.nn.Module):
         FF-native validation: Try all possible labels and choose the one with highest goodness.
         Calculates FF accuracy for all 7 combinations of layers: l0, l1, l2, l0+l1, l0+l2, l1+l2, l0+l1+l2
         """
-        scalar_outputs = {}
+        scalar_outputs = {
+            "Mode": "FF-native",
+            "Accuracies": {},
+        }
 
         batch_size = inputs["neutral_sample"].shape[0]
         num_classes = 10
@@ -189,7 +194,7 @@ class FF_model(torch.nn.Module):
         for combo_key, goodness in combined_goodness.items():
             predicted_labels = torch.argmax(goodness, dim=0)
             accuracy = (predicted_labels == true_labels).float().mean().item()
-            scalar_outputs[f'accuracy_{combo_key}'] = accuracy
+            scalar_outputs["Accuracies"][f'{combo_key}'] = accuracy
         
         # Use the accuracy from the combination of all layers as the main metric
         scalar_outputs["Accuracy"] = scalar_outputs['accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
@@ -201,6 +206,7 @@ class FF_model(torch.nn.Module):
     ):
         if scalar_outputs is None:
             scalar_outputs = {
+                "Mode": "Classifier head"
                 "Loss": torch.zeros(1, device=self.opt.device),
             }
 
@@ -229,7 +235,7 @@ class FF_model(torch.nn.Module):
         )
 
         scalar_outputs["Loss"] += classification_loss
-        # scalar_outputs["classification_loss"] = classification_loss
+        scalar_outputs["Classification Loss"] = classification_loss
         scalar_outputs["Accuracy"] = classification_accuracy
         return scalar_outputs
 

@@ -146,14 +146,35 @@ def get_accuracy(opt, output, target):
         return (prediction == target).sum() / opt.input.batch_size
 
 
-def print_results(iteration_time, scalar_outputs):
+def print_results(iteration_time, scalar_outputs, partition):
+    if scalar_outputs is None:
+        return
+    
     time_str = f"{iteration_time:.3f}s"
     
     print(f"\tTime: {time_str:<10}", end="")
     
-    if scalar_outputs is not None:
-        for key, value in scalar_outputs.items():
-            print(f"{key}: {value:7.4f}\t", end="")
+    if partition == "train":
+        print(f"\tPeer Normalization Loss: {scalar_outputs['Peer Normalization Loss']:7.4f}", end="")
+        print(f"\tLayers binary losses: ", end="")
+        for layer, loss in scalar_outputs["Binary Losses"].items():
+            print(f"{layer}: {loss:7.4f}, ", end="")
+        print(f"Layers binary accuracies: ", end="")
+        for layer, acc in scalar_outputs["Binary Accuracies"].items():
+            print(f"{layer}: {acc:7.4f}, ", end="")
+        print(f"\n\t\t\t\t\tClassification accuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
+        print(f"\tClassification loss: {scalar_outputs['Classification Loss']:7.4f},")
+        
+    else:
+        if scalar_outputs.get("Mode") == "Classifier head":
+            print(f"\tClassification accuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
+            print(f"\tClassification loss: {scalar_outputs['Loss']:7.4f},")
+        elif scalar_outputs.get("Mode") == "FF-native":
+            print(f"\t\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
+            print(f"\tFF-native accuracies: ", end="")
+            for combo, acc in scalar_outputs["Accuracies"].items():
+                print(f"{combo}: {acc:7.4f}, ", end="")
+            
     print()
 
 
