@@ -162,7 +162,7 @@ def print_results(iteration_time, scalar_outputs, partition):
         print(f"\tBinary accuracies: ", end="")
         for layer, acc in scalar_outputs["Binary Accuracies"].items():
             print(f"{layer}: {acc:7.4f}, ", end="")
-        print(f"\n\t\t\t\t\tClassification accuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
+        print(f"\n\t\t\t\t\t\t\tClassification accuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
         print(f"\tClassification loss: {scalar_outputs['Classification Loss']:7.4f},")
         
     else:
