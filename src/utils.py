@@ -179,19 +179,21 @@ def print_results(iteration_time, scalar_outputs, partition):
 
 
 def log_results(result_dict, scalar_outputs, num_steps):
-    print("see types of scalar_outputs:")
     for key, value in scalar_outputs.items():
-        print(key, value, type(value))
-    print("end of types of scalar_outputs")
-    for key, value in scalar_outputs.items():
-        print(key, value, type(value))
         if isinstance(value, float):
             result_dict[key] += value / num_steps
         elif isinstance(value, str):
             continue
         elif isinstance(value, dict):
             for subkey, subvalue in value.items():
-                result_dict[key][subkey] += subvalue.item() / num_steps
+                if isinstance(subvalue, float):
+                    result_dict[key][subkey] += subvalue / num_steps
+                elif isinstance(subvalue, torch.Tensor):
+                    result_dict[key][subkey] += subvalue.item() / num_steps
+                else:
+                    raise ValueError(f"Unsupported type in nested dict: {type(subvalue)}")
         elif isinstance(value, torch.Tensor):
             result_dict[key] += value.item() / num_steps
+        else:
+            raise ValueError(f"Unsupported type: {type(value)}")
     return result_dict
