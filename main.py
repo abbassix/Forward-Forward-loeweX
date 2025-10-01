@@ -26,8 +26,6 @@ def train(opt, model, optimizer):
             scalar_outputs["Loss"].backward()
 
             optimizer.step()
-
-            print(scalar_outputs)
             
             train_results = utils.log_results(
                 train_results, scalar_outputs, num_steps_per_epoch
