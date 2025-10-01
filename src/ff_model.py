@@ -46,6 +46,7 @@ class FF_model(torch.nn.Module):
 
     def _init_weights(self):
         for i, m in enumerate(self.model.modules()):
+            print(i, m)
             if isinstance(m, nn.Linear):
                 torch.nn.init.normal_(
                     m.weight, mean=0, std=1 / math.sqrt(m.weight.shape[0])
