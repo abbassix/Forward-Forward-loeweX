@@ -1,4 +1,6 @@
 import math
+from collections import defaultdict
+from itertools import combinations
 
 import torch
 import torch.nn as nn
@@ -140,9 +142,7 @@ class FF_model(torch.nn.Module):
         neutral_sample = inputs["neutral_sample"]
         
         # Store goodness for each layer and each possible label
-        all_goodness_l0 = []  # Layer 0 goodness
-        all_goodness_l1 = []  # Layer 1 goodness
-        all_goodness_l2 = []  # Layer 2 goodness
+        goodnesses = defaultdict(list)
         
         for class_label in range(num_classes):
             # Create one-hot label for this class
@@ -162,9 +162,6 @@ class FF_model(torch.nn.Module):
             z = labeled_sample.reshape(batch_size, -1)
             z = self._layer_norm(z)
             
-            # Track goodness for each individual layer
-            layer_goodness = []
-            
             with torch.no_grad():
                 for idx, layer in enumerate(self.model):
                     z = layer(z)
@@ -172,41 +169,32 @@ class FF_model(torch.nn.Module):
                     
                     # Calculate and store goodness for this layer
                     goodness = self._calc_goodness(z)
-                    layer_goodness.append(goodness)
+                    goodnesses[idx].append(goodness)
                     
                     z = self._layer_norm(z)
-            
-            # Store goodness for each layer
-            all_goodness_l0.append(layer_goodness[0])
-            all_goodness_l1.append(layer_goodness[1])
-            all_goodness_l2.append(layer_goodness[2])
         
         # Stack all goodness values: [num_classes, batch_size]
-        all_goodness_l0 = torch.stack(all_goodness_l0, dim=0)
-        all_goodness_l1 = torch.stack(all_goodness_l1, dim=0)
-        all_goodness_l2 = torch.stack(all_goodness_l2, dim=0)
+        for idx in range(len(self.model)):
+            goodnesses = torch.stack(goodnesses[idx], dim=0)
         
-        # Calculate combined goodness for all 7 combinations
-        goodness_combinations = {
-            'l0': all_goodness_l0,
-            'l1': all_goodness_l1,
-            'l2': all_goodness_l2,
-            'l0_l1': all_goodness_l0 + all_goodness_l1,
-            'l0_l2': all_goodness_l0 + all_goodness_l2,
-            'l1_l2': all_goodness_l1 + all_goodness_l2,
-            'l0_l1_l2': all_goodness_l0 + all_goodness_l1 + all_goodness_l2
-        }
+        # Calculate combined goodness using combinatorics
+        combined_goodness = {}
+        layer_indices = list(range(len(self.model)))
+        for r in range(1, len(layer_indices) + 1):
+            for combo in combinations(layer_indices, r):
+                combo_key = '_'.join([f'l{i}' for i in combo])
+                combined_goodness[combo_key] = sum(goodnesses[i] for i in combo)
         
         # Calculate accuracy for each combination
         true_labels = labels["class_labels"]
         
-        for combo_name, combo_goodness in goodness_combinations.items():
-            predicted_classes = torch.argmax(combo_goodness, dim=0)
-            accuracy = (predicted_classes == true_labels).float().mean().item()
-            scalar_outputs[f"ff_accuracy_{combo_name}"] = accuracy
+        for combo_key, goodness in combined_goodness.items():
+            predicted_labels = torch.argmax(goodness, dim=0)
+            accuracy = (predicted_labels == true_labels).float().mean().item()
+            scalar_outputs[f'ff_accuracy_{combo_key}'] = accuracy
         
-        # Keep the original total accuracy for backward compatibility
-        scalar_outputs["ff_native_accuracy"] = scalar_outputs["ff_accuracy_l0_l1_l2"]
+        # Use the accuracy from the combination of all layers as the main metric
+        scalar_outputs["ff_accuracy"] = scalar_outputs['ff_accuracy_' + '_'.join([f'l{i}' for i in layer_indices])]
         
         return scalar_outputs
 
@@ -243,8 +231,8 @@ class FF_model(torch.nn.Module):
         )
 
         scalar_outputs["Loss"] += classification_loss
-        scalar_outputs["CLF_loss"] = classification_loss
-        scalar_outputs["CLF_acc"] = classification_accuracy
+        scalar_outputs["classification_loss"] = classification_loss
+        scalar_outputs["classification_accuracy"] = classification_accuracy
         return scalar_outputs
 
 
