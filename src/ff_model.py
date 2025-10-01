@@ -90,7 +90,7 @@ class FF_model(torch.nn.Module):
     def forward(self, inputs, labels):
         scalar_outputs = {
             "Loss": torch.zeros(1, device=self.opt.device),
-            "PN": torch.zeros(1, device=self.opt.device),  # Peer Normalization
+            "Peer Normalization": torch.zeros(1, device=self.opt.device),  # Peer Normalization
         }
 
         # Concatenate positive and negative samples and create corresponding labels.
@@ -107,7 +107,7 @@ class FF_model(torch.nn.Module):
 
             if self.opt.model.peer_normalization > 0:
                 peer_loss = self._calc_peer_normalization_loss(idx, z)
-                scalar_outputs["PN"] += peer_loss
+                scalar_outputs["Peer Normalization"] += peer_loss
                 scalar_outputs["Loss"] += self.opt.model.peer_normalization * peer_loss
 
             ff_loss, ff_accuracy = self._calc_ff_loss(z, posneg_labels)
@@ -156,10 +156,7 @@ class FF_model(torch.nn.Module):
             # Create labeled sample by setting the first pixels to the one-hot label
             labeled_sample = neutral_sample.clone()
             # Set the first row of pixels (first 10 pixels) to the one-hot label
-            if neutral_sample.dim() == 4:  # With channel dimension
-                labeled_sample[:, :, 0, :num_classes] = batch_one_hot.unsqueeze(1)
-            else:  # Without channel dimension
-                labeled_sample[:, 0, :num_classes] = batch_one_hot
+            labeled_sample[:, 0, :num_classes] = batch_one_hot
             
             # Forward pass through the network
             z = labeled_sample.reshape(batch_size, -1)
