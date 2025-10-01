@@ -24,7 +24,7 @@ training:
   downstream_learning_rate: 1e-2
   downstream_weight_decay: 3e-3
 
-  val_idx: -1  # -1: validate only once training has finished; n: validate every n epochs.
+  val_idx: 1  # -1: validate only once training has finished; n: validate every n epochs.
   final_test: False  # Set to true to evaluate performance on test-set.
 
 
