@@ -163,7 +163,7 @@ def print_results(iteration_time, scalar_outputs, partition):
         for layer, acc in scalar_outputs["Binary Accuracies"].items():
             print(f"{layer}: {acc:7.4f}, ", end="")
         print(f"\n\t\t\t\t\t\t\tAccuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
-        print(f"\tClassification loss: {scalar_outputs['Classification Loss']:7.4f},", end="")
+        print(f"\tClassification loss: {scalar_outputs['Classification Loss']:7.4f}", end="")
         
     else:
         if scalar_outputs.get("Mode") == "Classifier head":
@@ -174,8 +174,6 @@ def print_results(iteration_time, scalar_outputs, partition):
             print(f"\tAccuracies: ", end="")
             for combo, acc in scalar_outputs["Accuracies"].items():
                 print(f"{combo}: {acc:7.4f}, ", end="")
-            
-    print()
 
 
 def log_results(result_dict, scalar_outputs, num_steps):
