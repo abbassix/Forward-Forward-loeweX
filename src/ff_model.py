@@ -131,9 +131,7 @@ class FF_model(torch.nn.Module):
         FF-native validation: Try all possible labels and choose the one with highest goodness.
         Calculates FF accuracy for all 7 combinations of layers: l0, l1, l2, l0+l1, l0+l2, l1+l2, l0+l1+l2
         """
-        scalar_outputs = {
-            "Loss": torch.zeros(1, device=self.opt.device),
-        }
+        scalar_outputs = {}
 
         batch_size = inputs["neutral_sample"].shape[0]
         num_classes = 10
