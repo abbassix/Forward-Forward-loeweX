@@ -91,7 +91,7 @@ def validate_or_test_ff_native(opt, model, partition, epoch=None):
     num_steps_per_epoch = len(data_loader)
 
     model.eval()
-    print(f"\t{partition} (FF-native)\t", end="")
+    print(f"\t{partition} (FF-native)", end="")
     with torch.no_grad():
         for inputs, labels in data_loader:
             inputs, labels = utils.preprocess_inputs(opt, inputs, labels)
