@@ -156,14 +156,7 @@ class FF_model(torch.nn.Module):
             # Create labeled sample by setting the first pixels to the one-hot label
             labeled_sample = neutral_sample.clone() # Shape: [batch_size, 28, 28]
             # Set the first row of pixels (first 10 pixels) to the one-hot label
-            if neutral_sample.dim() == 4:  # With channel dimension
-                print("With channel dimension")
-                print(neutral_sample.shape)
-                labeled_sample[:, :, 0, :num_classes] = batch_one_hot.unsqueeze(1)
-            else:  # Without channel dimension
-                print("Without channel dimension")
-                print(neutral_sample.shape)
-                labeled_sample[:, 0, :num_classes] = batch_one_hot
+            labeled_sample[:, :, 0, :num_classes] = batch_one_hot.unsqueeze(1)
             
             # Forward pass through the network
             z = labeled_sample.reshape(batch_size, -1)
