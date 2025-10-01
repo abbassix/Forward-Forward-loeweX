@@ -131,7 +131,6 @@ class FF_model(torch.nn.Module):
     def forward_ff_native_validation(self, inputs, labels):
         """
         FF-native validation: Try all possible labels and choose the one with highest goodness.
-        Calculates FF accuracy for all 7 combinations of layers: l0, l1, l2, l0+l1, l0+l2, l1+l2, l0+l1+l2
         """
         scalar_outputs = {
             "Mode": "FF-native",

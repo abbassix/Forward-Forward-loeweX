@@ -156,10 +156,10 @@ def print_results(iteration_time, scalar_outputs, partition):
     
     if partition == "train":
         print(f"\tPeer Normalization Loss: {scalar_outputs['Peer Normalization Loss']:7.4f}", end="")
-        print(f"\tLayers binary losses: ", end="")
+        print(f"\tBinary losses: ", end="")
         for layer, loss in scalar_outputs["Binary Losses"].items():
             print(f"{layer}: {loss:7.4f}, ", end="")
-        print(f"Layers binary accuracies: ", end="")
+        print(f"\tBinary accuracies: ", end="")
         for layer, acc in scalar_outputs["Binary Accuracies"].items():
             print(f"{layer}: {acc:7.4f}, ", end="")
         print(f"\n\t\t\t\t\tClassification accuracy: {scalar_outputs['Accuracy']:7.4f}", end="")
