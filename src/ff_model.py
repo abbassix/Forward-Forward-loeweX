@@ -174,8 +174,8 @@ class FF_model(torch.nn.Module):
                     z = self._layer_norm(z)
         
         # Stack all goodness values: [num_classes, batch_size]
-        for idx in range(len(self.model)):
-            goodnesses = torch.stack(goodnesses[idx], dim=0)
+        for idx in range(len(self.model)):  # TypeError: stack(): argument 'tensors' (position 1) must be tuple of Tensors, not Tensor
+            goodnesses[idx] = torch.stack(goodnesses[idx], dim=0)
         
         # Calculate combined goodness using combinatorics
         combined_goodness = {}
